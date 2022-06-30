@@ -1,0 +1,80 @@
+#include <Wire.h>
+#define LM35 A2
+#define LDR A1
+#define DHTPIN 4
+#define DHTTYPE DHT11
+#include <DHT.h>
+#include <DHT_U.h>
+#include <LiquidCrystal_I2C.h>
+
+DHT dht(DHTPIN,DHTTYPE);
+
+LiquidCrystal_I2C lcd(0x27,16,2);
+
+float temp;
+unsigned int bin;
+float res;
+float lum;
+int valor_lido;
+int valor_LDR = 0;
+float tensao;
+
+
+void setup() {
+  
+lcd.init();
+lcd.backlight();
+dht.begin();
+lcd.clear();
+pinMode (LM35, INPUT);
+pinMode (LDR, INPUT);
+pinMode (DHTPIN, INPUT);
+lcd.setCursor (0,0);
+lcd.print (" MPROG01 ");
+delay (2000);
+lcd.clear();
+lcd.setCursor (0,0);
+}
+
+void loop() {
+float H = dht.readHumidity ();
+float T = dht.readTemperature();
+
+valor_lido = analogRead (LM35);
+tensao = valor_lido * 5.0/1023.0;
+temp = tensao*100.0;
+
+valor_LDR = analogRead (LDR);
+
+
+lcd.print (" ESTACAO");
+lcd.setCursor (0,1);
+lcd.print (" METEOROLOGICA ");
+delay (2000);
+lcd.clear();
+lcd.setCursor (0,0);
+lcd.print (" TEMP: ");
+lcd.print(temp);
+lcd.print (" C");
+delay (2000);
+lcd.setCursor(0,1);
+lcd.print(" UMID: ");
+lcd.print (H);
+lcd.print ("%");
+delay(2000);
+lcd.clear();
+lcd.setCursor(0,0);
+lcd.print(" LUMINOSIDADE: ");
+lcd.setCursor(0,1);
+delay (2000);
+bin = analogRead (A1);
+tensao = (bin/1023.0)*5;
+res = (10000.0*(5.0-tensao))/tensao;
+lum = pow (10,6.5-1.25*log10(res));
+lcd.setCursor(5,1);
+lcd.print(lum,1);
+lcd.setCursor (0,1);
+lcd.print ("LUX: ");
+delay (2000); 
+lcd.clear();
+}
